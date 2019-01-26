@@ -11,7 +11,7 @@ package object types {
   type Author      = Refined[String, ValidAuthor]
   type Year        = Refined[Int, Greater[W.`1000`.T]]
   type Title       = Refined[String, ValidTitle]
-  type Description = Refined[Int, ValidDescriptionSize]
+  type Description = Refined[String, ValidDescriptionSize]
 
   private type ValidAuthor          = Forall[Or[Letter, Whitespace]]
   private type ValidTitle           = Forall[Or[LetterOrDigit, Whitespace]]
