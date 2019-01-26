@@ -29,10 +29,18 @@ class BookServiceImpl[F[_]](
   override def getAllBooks(): F[List[Book]] = bookRepository.getAllBooks()
 
   override def postBooks(books: List[Book]): F[Unit] = {
-    M.recover(books.foldLeft(M.unit)((_, b) => bookRepository.createBook(b)))(???)
+    M.recover {
+      books.foldLeft(M.unit) { (_, b) =>
+        mLogger.message(s"Creating new book $b")
+        bookRepository.createBook(b)
+      }
+    }(???)
   }
 
   override def deleteBook(book: Book): F[Unit] = {
-    bookRepository.deleteBookByTitle(book.title)
+    for {
+      _ <- mLogger.message(s"Deleting book $book")
+      _ <- bookRepository.deleteBookByTitle(book.title)
+    } yield ()
   }
 }
