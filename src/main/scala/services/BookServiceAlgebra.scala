@@ -6,11 +6,11 @@ import cats.syntax.functor._
 import helpers.MLogger
 import models.Book
 import models.types.{Author, Year}
-import repositories.BookRepository
+import repositories.BookRepositoryAlgebra
 
 import scala.language.higherKinds
 
-trait BookService[F[_]] {
+trait BookServiceAlgebra[F[_]] {
   def getBooksByYearAndAuthor(year: Year, author: Author): F[List[Book]]
 
   def getAllBooks():                F[List[Book]]
@@ -18,10 +18,8 @@ trait BookService[F[_]] {
   def deleteBook(book: Book):       F[Unit]
 }
 
-class BookServiceImpl[F[_]](
-                           mLogger: MLogger[F],
-                           bookRepository: BookRepository[F]
-                           )(implicit M: MonadError[F, Throwable]) extends BookService[F] {
+class BookService[F[_]](mLogger: MLogger[F], bookRepository: BookRepositoryAlgebra[F]
+                           )(implicit M: MonadError[F, Throwable]) extends BookServiceAlgebra[F] {
   override def getBooksByYearAndAuthor(year: Year, author: Author): F[List[Book]] = {
     M.map(bookRepository.getBookByYear(year))(books => books.filter(b => b.author == author))
   }
