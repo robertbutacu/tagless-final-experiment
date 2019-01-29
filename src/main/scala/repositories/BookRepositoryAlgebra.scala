@@ -17,25 +17,25 @@ trait BookRepositoryAlgebra[F[_]] {
 }
 
 class BookRepository[F[_]]()(implicit M: Monad[F]) extends BookRepositoryAlgebra[F] {
-  private var books: List[Book] = (0 to 150).map(_ => Book.bookGenerator.sample.get).toList
+  private var repository: List[Book] = List.empty[Book]
 
   override def getAllBooks(): F[List[Book]] = M.pure {
-    books
+    repository
   }
 
   override def getBookByAuthor(author: Author): F[List[Book]] = M.pure {
-    books.filter(b => b.author == author)
+    repository.filter(b => b.author == author)
   }
 
   override def getBookByYear(year: Year): F[List[Book]] = M.pure {
-    books.filter(b => b.year == year)
+    repository.filter(b => b.year == year)
   }
 
   override def createBook(book: Book): F[Unit] = M.pure {
-    books = books :+ book
+    repository = repository :+ book
   }
 
   override def deleteBookByTitle(title: Title): F[Unit] = M.pure {
-    books = books.filterNot(b => b.title == title)
+    repository = repository.filterNot(b => b.title == title)
   }
 }

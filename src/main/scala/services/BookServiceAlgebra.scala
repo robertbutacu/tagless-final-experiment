@@ -24,7 +24,12 @@ class BookService[F[_]](mLogger: MLogger[F], bookRepository: BookRepositoryAlgeb
     M.map(bookRepository.getBookByYear(year))(books => books.filter(b => b.author == author))
   }
 
-  override def getAllBooks(): F[List[Book]] = bookRepository.getAllBooks()
+  override def getAllBooks(): F[List[Book]] = {
+    for {
+      _     <- mLogger.message("Retrieving all books")
+      books <- bookRepository.getAllBooks()
+    } yield books
+  }
 
   override def postBooks(books: List[Book]): F[Unit] = {
     M.recover {
@@ -32,7 +37,7 @@ class BookService[F[_]](mLogger: MLogger[F], bookRepository: BookRepositoryAlgeb
         mLogger.message(s"Creating new book $b")
         bookRepository.createBook(b)
       }
-    }(???)
+    }{case _: Exception => mLogger.message(s"Failed to create book $books")}
   }
 
   override def deleteBook(book: Book): F[Unit] = {
